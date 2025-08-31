@@ -4,11 +4,14 @@ import re
 root=Tk()
 root.title("Complex Calculator")
 
+op=["+","-","*","/"]
+history=[]
 
 class calculator:
+
     @classmethod
     def Error(cls):
-        if e.get()=="Error":
+        if e.get()=="Invalid Syntax":
             e.delete(0,END)
 
     @classmethod
@@ -16,6 +19,12 @@ class calculator:
         calculator.Error()
         a=e.get()
         e.delete(0,END)
+        if n in op:
+            for i in op:
+                if a.endswith(i):
+                    a=f"{a[:-1]}{n}"
+                    e.insert(0,a)
+                    return
         e.insert(0, f"{a}{n}")
 
     @classmethod
@@ -40,6 +49,7 @@ class calculator:
     @classmethod
     def button_equal(cls):
         fnum=e.get()
+        history.append(fnum)
         while True:
             if match:=re.search(r"(\+|-|\*)?(\d+(\.\d+)?)/(\d+(\.\d+)?)(\+|-|\*)?",fnum):
                 pattern = r"(\+|-|\*)?(\d+(\.\d+)?)/(\d+(\.\d+)?)(\+|-|\*)??"
@@ -62,10 +72,10 @@ class calculator:
                 break
 
         while True:
-            if match:=re.search(r"(\*|/)?(-)?!(\d+(\.\d+)?)\+(\d+(\.\d+)?)(\*|-|/)?",fnum):
-                pattern = r"(\*|/)?(-)?!(\d+(\.\d+)?)\+(\d+(\.\d+)*)(\*|-|/)?"
-                add=float(match.group(3))+float(match.group(5))
-                fnum=re.sub(pattern, lambda  match: f"{match.group(1) or ""}{add}{match.group(7) or ""}",fnum,count=1)
+            if match:=re.search(r"(\*|/)?(?!-)(\d+(\.\d+)?)\+(\d+(\.\d+)?)(\*|-|/)?",fnum):
+                pattern = r"(\*|/)?(?!-)(\d+(\.\d+)?)\+(\d+(\.\d+)*)(\*|-|/)?"
+                add=float(match.group(2))+float(match.group(4))
+                fnum=re.sub(pattern, lambda  match: f"{match.group(1) or ""}{add}{match.group(6) or ""}",fnum,count=1)
                 
             elif match:=re.search(r"(-)?(\d+(\.\d+)?)\+(\d+(\.\d+)?)(\*|-|/)?",fnum):
                 pattern = r"(-)?(\d+(\.\d+)?)\+(\d+(\.\d+)*)(\*|-|/)?"
@@ -78,19 +88,25 @@ class calculator:
                 break
 
         while True:
-            if match:=re.search(r"(\+|\*|/)?(\d+(\.\d+)?)-(\d+(\.\d+)?)(\+|\*|/)?",fnum):
-                pattern = r"(\+|\*|/)?(\d+(\.\d+)?)-(\d+(\.\d+)?)(\+|\*|/)?"
+            if match:=re.search(r"(|\*|/)?(?!\+)(\d+(\.\d+)?)-(\d+(\.\d+)?)(\+|\*|/)?",fnum):
+                pattern = r"(\+|\*|/)?(?!\+)(\d+(\.\d+)?)-(\d+(\.\d+)?)(\+|\*|/)?"
                 sub=float(match.group(2))-float(match.group(4))
                 fnum=re.sub(pattern, lambda  match: f"{match.group(1) or ""}{sub}{match.group(6) or ""}",fnum,count=1)
+            
+            elif match:=re.search(r"(-)?(\d+(\.\d+)?)\+(\d+(\.\d+)?)(\*|-|/)?",fnum):
+                pattern = r"(-)?(\d+(\.\d+)?)\+(\d+(\.\d+)*)(\*|-|/)?"
+                sub=float(match.group(4))+float(match.group(2))
+                fnum=re.sub(pattern, lambda  match: f"+{sub}{match.group(6) or ""}",fnum,count=1)
+
             else:
                 break
         
-        if '*' in fnum or '/' in fnum:
-            e.delete(0,END)
-            e.insert(0,"Invalid Syntax")
-        else:
+        if match:=re.search(r"^(\+|-)?(\d+(\.\d+)?)$",fnum):
             e.delete(0,END)
             e.insert(0,fnum)
+        else:
+            e.delete(0,END)
+            e.insert(0,"Invalid Syntax")
         
 class simple_calculator(calculator):
 
@@ -122,7 +138,7 @@ class simple_calculator(calculator):
         buttonequal=Button(root,text="=",command= calculator.button_equal,pady=17,padx=28).grid(row=6,column=2)
         root.mainloop()
 
-#I am going to try and add more features like history however and log and sin functions seem to be a bit tricky for now.         
+#I am going to try and add more features like history however log and sin functions seem to be a bit tricky for now.         
 '''        
 
 class complex_calculator(calculator):
@@ -159,3 +175,4 @@ class complex_calculator(calculator):
         root.mainloop()
 '''
 x=simple_calculator()
+
